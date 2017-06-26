@@ -2,6 +2,18 @@
 
 An object projection library for the .NET Framework.
 
+## What It Does
+
+Dynamically creates an object 
+
+## Terminology
+
+A **source object** is any object that contains data we want.
+
+A **projection** of a **source object** is another object - generated at runtime - that contains a subset of the data fields and properties of the source object.
+
+A **projector** is the class that creates the projection.
+
 ## Motivation
 
 This project started because we had a web service that had to send some of an object's data to the browser, but not all of it.
@@ -10,7 +22,7 @@ Consider the following data class that represents a user:
 	public class User
 	{
 		//
-		// WE WANT TO SEND THE FOLLOWING 4 FIELDS TO THE BROWSER.
+		// WE ONLY WANT TO SEND THE FOLLOWING 4 FIELDS TO THE BROWSER.
 		//
 		public int UserId;
 		public string FirstName;
@@ -38,22 +50,38 @@ Here are the some of the solutions we considered:
 1. Create a new data class that contains only the fields needed.
 Before serializing, copy the required fields from the original data class to the new data class.
 
-2. Create an interface that exposes only the properties needed.
+1. Create an interface that exposes only the properties needed.
 Make the data class implement that interface.
 
-3. Mark each field or property of the data class with an attribute that indicates if the field or property should be included in the projection.
-Write a custom projector class that discovers that metadata.
+1. Apply an attribute to each member of the data class that indicates if the member should be included in the projection.
+Write a custom projector class that reflects against the data class instance and selects the appropriate members to create the projection.
 
-4. Serialize the entire data class to its target format - such as XML or JSON - and then apply a format-specific transformation to select only the data fields you need such as XPath or JSON Query Language, respectively.
-For example, serialize the entire data class to XML, then use XSLT, XPath or manipulate the DOM directly to cut out anything you don't want to send.
+1. Serialize the entire data class to its target representation (such as XML or JSON) and then apply a representation-specific transformation to select only the data fields you need.
+For example, we could serialize the entire data class to XML, then use XSLT, XPath or DOM manipulation to cut out anything you don't want.
 
-5. 
+1. Create a hash table, manually add the required values from the source object, then serialize the hash table.
+
+1. **Write a custom projector class that can be configured to select the required values from the source object to create the projection.**
 
 ## Getting Started
-	
+
+Let's create a projection of a user that contains only the first 4 fields:
+
+	using System.Collections;
 	using ObjectProjector;
 
-	Projector RankProjector = new Projector(TargetRank);
+	Projector UserProjector = new Projector(SourceUser);
+	UserProjector.Include(new string[] {"UserId", "FirstName", "LastName", "EmailAddress"});
+	Hashtable UserProjection = UserProjector.CreateProjection();
+
+What the above code does:
+
+1. Creates a projector and specifies the source object as a constructor parameter.
+
+1. Specifies the 4 members of the user instance that will be included in the projection.
+
+1. Creates the projection.
+
 
 
 ## About
