@@ -2,15 +2,16 @@
 
 An object projection library for the .NET Framework.
 
-## What It Does
+## Purpose / What It Does
+
 
 Dynamically creates an object 
 
 ## Terminology
 
-A **source object** is any object that contains data we want.
+A **source object** is any object that contains values we need.
 
-A **projection** of a **source object** is another object - generated at runtime - that contains a subset of the data fields and properties of the source object.
+A **projection** of a **source object** is another object - generated at runtime - that contains a subset of the source object's values.
 
 A **projector** is the class that creates the projection.
 
@@ -73,7 +74,7 @@ Let's create a projection of a user that contains only the first 4 fields:
 	Projector UserProjector = new Projector(SourceUser);
 	UserProjector.Include(new string[] {"UserId", "FirstName", "LastName", "EmailAddress"});
 	Hashtable UserProjection = UserProjector.CreateProjection();
-
+	
 What the above code does:
 
 1. Creates a projector and specifies the source object as a constructor parameter.
@@ -82,8 +83,24 @@ What the above code does:
 
 1. Creates the projection.
 
+We could have instead used the more terse syntax:
 
+	using ObjectProjector;
+
+	Hashtable UserProjection = Projector.CreateProjection(SourceUser, new string[] {"UserId", "FirstName", "LastName", "EmailAddress"});
+
+This does the same thing.
+	
+## Projector Details
+
+* A projector only works with public fields and public properties that have a getter.  It cannot invoke a method.
+
+* By default, the projector will include no values at all.
+
+* By default, the projector will not include a member that has a null value.
+
+## Projection Details
+
+* A projection is implemented as a Hashtable.
 
 ## About
-
-
